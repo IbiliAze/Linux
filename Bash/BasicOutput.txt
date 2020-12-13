@@ -1,0 +1,21 @@
+hello
+Bash.sh
+BasicOutput.txt
+BasicText.txt
+Case.sh
+For.sh
+Getopt.sh
+If.sh
+IFS.sh
+Input.sh
+Maths.sh
+MathsWithBC.sh
+MathsWithZSH.sh
+OptionsInput.sh
+Options.sh
+Read.sh
+STDERR.sh
+While.sh
+Sun 11 Oct 2020 07:49:05 AM PDT
+./STDERR.sh: line 8: dateee: command not found
+Sun 11 Oct 2020 07:54:18 AM PDT

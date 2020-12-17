@@ -89,6 +89,10 @@ nc 10.1.1.1 80 #connect from client (for testing the commands above)
 
 [ Routing & ARP Tables ]
 
+echo "1" > /proc/sys/net/ipv4/ip_forward #for using the box as a router
+
+echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf #same as above 
+
 route #routing table
 
 routel #full routing table

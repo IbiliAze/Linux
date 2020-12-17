@@ -1,11 +1,15 @@
 #!/bin/bash
 
 
+
+
+
 [ Installation ]
 
 sudo iptables --list #see if you have the iptables utilities
 sudo apt install -y iptables-services
 sudo yum install -y conntrack-tools
+
 
 
 [ Systemctl ]
@@ -33,6 +37,9 @@ sudo iptables -A INPUT -p tcp --dport 80 -j ACCEPT #-A=append/CHAIN, created in 
 sudo iptables -A INPUT -p tcp --dport ssh -s 5.193.32.123 -j REJECT #created in RAM
 
 
+
+[ Tables ]
+
 {Filter Table}
 sudo iptables -t filter -L
 
@@ -41,6 +48,11 @@ sudo iptables -L INPUT #INPUT chain for filter table
 sudo iptables -t filter -A INPUT -p tcp --dport 22 -j ACCEPT #-t=table
 
 sudo iptables -t filter -I INPUT 5 -s 10.0.1.0/23 -j REJECT #-I=insert, 5=line 5, -s=source
+
+
+{NAT Table}
+sudo iptables -t nat -A PREROUTING -p tcp -dport 80 -j DNAT --to-destination 10.1.0.220:80 #incoming packet to port 80 is redirected to 10.1.0.220:80
+sudo iptables -t nat -A PREROUTING -o ens1 -j MASQUERADE #NAT, could be used to private -> public address NAT
 
 
 

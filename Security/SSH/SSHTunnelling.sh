@@ -13,15 +13,20 @@
 #   local       int.        remote
 #
 
-sudo ssh -i ~/.ssh/ubuntuKP.pem -L 8080:54.173.31.188:80 ec2-user@54.226.142.154 #1st IP=internal, 2nd IP=external
+ssh -L 8080:54.173.31.188:80 ec2-user@54.226.142.154 #1st IP=internal, 2nd IP=external
 ss -lntp
 curl localhost:8080
 
-# Using 2 servers
-sudo ssh -i ~/.ssh/ubuntuKP.pem -L 8080:54.173.31.188:80 -L 9090:54.226.142.154:80 ec2-user@54.226.142.154
+
+{Using 2 servers}
+ssh -L 8080:54.173.31.188:80 -L 9090:54.226.142.154:80 ec2-user@54.226.142.154
 ss -lntp
 curl localhost:8080
 curl localhost:9090
+
+
+{Using no intermediate Server}
+ssh ec2-user@34.228.73.119 -L 9999:localhost:80 #cURLing localhost:9999 will return the 34.228.73.119:80. Think of "localhost:80" in 34.228.73.119's prespective
 
 
 
@@ -40,12 +45,12 @@ curl localhost:9090
 docker run -d -p 5000:80 --name localnginx nginx #local web server to be available at an internal network
 
 #Intermediate Server @sudo ssh -i .ssh/ubuntuKP.pem ec2-user@54.226.142.154
-sudo vim /etc/ssh/sshd_config #GatewayPorts yes
-sudo systemctl restart sshd
+vim /etc/ssh/sshd_config #GatewayPorts yes
+systemctl restart sshd
 exit
 
 #Local Server again
-sudo ssh -i ~/.ssh/ubuntuKP.pem -R 8080:localhost:5000 ec2-user@54.226.142.154 #IP=intermediate server, start the new SSH tunnel
+ssh -R 8080:localhost:5000 ec2-user@54.226.142.154 #IP=intermediate server, start the new SSH tunnel
 
 #Remote Server @sudo ssh -i .ssh/ubuntuKP.pem ec2-user@54.173.31.188
 curl 54.226.142.154:8080 #IP=intermediate server
@@ -54,4 +59,4 @@ curl 54.226.142.154:8080 #IP=intermediate server
 
 [ Dynamic SSH Tunnelling ]
 
-sudo ssh -i ~/.ssh/ubuntuKP.pem -D 8080 ec2-user@54.226.142.154 #intermediate server
+ssh -D 8080 ec2-user@54.226.142.154 #intermediate server

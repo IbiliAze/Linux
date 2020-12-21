@@ -7,7 +7,7 @@ echo '127.0.0.1 www.mydomain.com' >> /etc/hosts
 mkdir /usr/share/nginx/html/mydomain
 echo "guru" > /usr/share/nginx/html/mydomain/index.html
 
-cp /usr/share/nginx/html/404.html /usr/share/nginx/html/mydomain/ #optionallt move the error sites to the root directory and customise
+cp /usr/share/nginx/html/404.html /usr/share/nginx/html/mydomain/ #optionally move the error sites to the root directory and customise
 cp /usr/share/nginx/html/50x.html /usr/share/nginx/html/mydomain/ 
 
 vim /etc/nginx/nginx.com 

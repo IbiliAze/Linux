@@ -10,7 +10,7 @@ echo "guru" > /usr/share/nginx/html/mydomain/index.html
 cp /usr/share/nginx/html/404.html /usr/share/nginx/html/mydomain/ #optionally move the error sites to the root directory and customise
 cp /usr/share/nginx/html/50x.html /usr/share/nginx/html/mydomain/ 
 
-vim /etc/nginx/nginx.com 
+vim /etc/nginx/nginx.conf 
 >http
     >server
         >server_name www.mydomain.com;

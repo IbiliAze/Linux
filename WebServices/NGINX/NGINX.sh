@@ -137,6 +137,53 @@ mkdir /etc/nginx/ssl
 openssl req -x509 -nodes -days 365 \ 
     -newkey rsa:2048 -keyout /etc/nginx/ssl/private.key \
     -out /etc/nginx/ssl/public.pem #-nodes=don't encrypt the output key
+echo "server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+
+        listen 443 ssl;
+        ssl_certificate /etc/nginx/ssl/public.pem;
+        ssl_certificate_key /etc/nginx/ssl/private.key;
+
+        root /var/www/html;
+
+        index index.html index.htm index.nginx-debian.html;
+
+        server_name _;
+}" > /etc/nginx/conf.d/default.conf
+nginx -t
+nginx -s reload
+curl https://localhost -k #-k=ignore self-signed certificate error 
+
+
+{Redirect to HTTPS}
+
+
+
+[ Redirecting ]
+
+echo "server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+
+        listen 443 ssl;
+        ssl_certificate /etc/nginx/ssl/public.pem;
+        ssl_certificate_key /etc/nginx/ssl/private.key;
+
+        rewrite ^(/.*)\.html(\?.*)?$ $1$2 redirect;
+        rewrite ^/(.*)/$ /$1 redirect;
+
+        root /var/www/html;
+
+        index index.html index.htm index.nginx-debian.html;
+
+        server_name _;
+}" > /etc/nginx/conf.d/default.conf #will remove the .html string, second will remove the trailing /
+nginx -t
+nginx -s reload
+
+
+{Redirect to HTTPS}
 
 
 
@@ -160,3 +207,4 @@ ss -lntp
 firewall-cmd --permanent --add-port=8080/tcp
 firewall-cmd --reload
 curl localhost:8080
+

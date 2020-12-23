@@ -129,6 +129,8 @@ semanage fxontext -l | grep /var/www/html #see the labels -> httpd_sys_content_t
 semanage fcontext -a -t #-a=add, -t=type/tag httpd_sys_content_t '/mydir(/.*)?'
 restorecon -R /mydir #-R=recursive, -v=verbose
 
+setsebool -P http_can_network_connect 1
+
 
 
 [ SSL / TLS / HTTPS ]
@@ -157,6 +159,28 @@ curl https://localhost -k #-k=ignore self-signed certificate error
 
 
 {Redirect to HTTPS}
+echo "server {
+        listen 80 default_server;
+        server_name _;
+        return 301 https://$host$request_uri;
+}
+
+
+server {
+        listen 443 ssl;
+        ssl_certificate /etc/nginx/ssl/public.pem;
+        ssl_certificate_key /etc/nginx/ssl/private.key;
+
+        root /var/www/html;
+
+        index index.html index.htm index.nginx-debian.html;
+
+        server_name _;
+}" > /etc/nginx/conf.d/default.conf
+nginx -t
+nginx -s reload
+curl localhost | grep 301
+curl localhost -L -k #-L=follow redirects
 
 
 
@@ -184,27 +208,115 @@ nginx -s reload
 
 
 {Redirect to HTTPS}
+echo "server {
+        listen 80 default_server;
+        server_name _;
+        return 301 https://$host$request_uri;
+}
+
+
+server {
+        listen 443 ssl;
+        ssl_certificate /etc/nginx/ssl/public.pem;
+        ssl_certificate_key /etc/nginx/ssl/private.key;
+
+        root /var/www/html;
+
+        index index.html index.htm index.nginx-debian.html;
+
+        server_name _;
+}" > /etc/nginx/conf.d/default.conf
+nginx -t
+nginx -s reload
+curl localhost | grep 301
+curl localhost -L -k #-L=follow redirects
+
+
+
+[ Modules ]
+
+nginx -V 2>&1 | tr -- - '\n' | grep _module #see enabled compiled modules
+
+yum group install 'Development Tools'
 
 
 
 [ Reverse Proxy ]
 
-yum install -y epel-release #if failed on AWS amazon-linux-extras install epel
-yum install -y nginx        #if failed on AWS amazon-linux-extras install nginx1
-firewall-cmd --permanent --add-service=http
-firewall-cmd --reload
-systemctl start nginx
-vim /etc/nginx/nginx.conf #config files provided in this directory
-systemctl restart nginx
-ss -lntp
-for i {1..10}; do curl localhost; done
+echo "server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+
+        root /var/www/html;
+
+        index index.html index.htm index.nginx-debian.html;
+
+        server_name myrp.com;
+        location / {
+            proxy_pass http://10.253.104.62:80;
+
+            proxy_http_version 1.1;
+
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; #forward chain of IP address to the servers
+            proxy_set_header X-Real-IP $remote_addr; #forward real IP address to the servers
+            proxy_set_header Upgrade $http_upgrade; #for Node.JS websocket.io
+            proxy_set_header Connection "upgrade"; #same as above
+        }
+}" > /etc/nginx/conf.d/default.conf
+nginx -t
+nginx -s reload
+curl localhost
+
 
 #Nodes
-sudo su
-vim /etc/httpd/conf/httpd.conf #change listen to 8080
-systemctl restart httpd
-ss -lntp
-firewall-cmd --permanent --add-port=8080/tcp
-firewall-cmd --reload
-curl localhost:8080
+echo $(ip a) > /var/www/html/index.html
+
+
+
+[ Load Balancing ]
+
+{Round-Robin}
+echo "upstream myservers {
+        server 10.253.104.62:80;
+        server 10.253.104.24:80;
+}
+
+server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+
+        root /var/www/html;
+
+        index index.html index.htm index.nginx-debian.html;
+
+        server_name myrp.com;
+        location / {
+            proxy_pass http://myservers;
+            proxy_http_version 1.1;
+
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; #forward chain of IP address to the servers
+            proxy_set_header X-Real-IP $remote_addr; #forward real IP address to the servers
+            proxy_set_header Upgrade $http_upgrade; #for Node.JS websocket.io
+            proxy_set_header Connection "upgrade"; #same as above
+        }
+
+}" > /etc/nginx/conf.d/default.conf
+nginx -t
+nginx -s reload
+curl localhost
+curl --header "Host: 10.253.104.62:80" localhost
+
+
+
+[ Troubleshooting ]
+
+systemctl stop firewalld
+
+
+
+
+
+
+
+
 

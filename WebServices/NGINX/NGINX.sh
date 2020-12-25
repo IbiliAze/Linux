@@ -307,6 +307,95 @@ curl localhost
 curl --header "Host: 10.253.104.62:80" localhost
 
 
+{Weighted}
+echo "upstream myservers {
+        server 10.253.104.62:80 weight=2;
+        server 10.253.104.24:80;
+}" > /etc/nginx/conf.d/default.conf #default weight is 1
+
+
+{Hash}
+echo "upstream myservers {
+        hash $request_uri;
+    
+        server 10.253.104.62:80;
+        server 10.253.104.24:80;
+}" > /etc/nginx/conf.d/default.conf
+
+
+{Active-Passive Failover}
+echo "upstream myservers {
+        server 10.253.104.62:80;
+        server 10.253.104.24:80 backup;
+}" > /etc/nginx/conf.d/default.conf
+
+
+{Passive Fail Check} 
+echo "upstream myservers {
+        server 10.253.104.62:80 max_fails=3 fail_timeout=20s; #3 failures in 20 seconds
+        server 10.253.104.24:80 max_fails=3 fail_timeout=20s;
+}" > /etc/nginx/conf.d/default.conf #checks for fails, if failed the server will be marked unavailable
+
+
+{IP-Hash}
+echo "upstream myservers {
+        ip_hash;
+
+        server 10.253.104.62:80;
+        server 10.253.104.24:80;
+}" > /etc/nginx/conf.d/default.conf
+
+
+{Least Connected}
+echo "upstream myservers {
+        least_conn;
+
+        server 10.253.104.62:80;
+        server 10.253.104.24:80;
+}" > /etc/nginx/conf.d/default.conf
+
+
+
+[ Logging ]
+
+{Log Formats}
+echo step 1
+echo "http {
+
+        log_format  myformat1       '$host $remote_addr - $remote_user [$time_local] "$request" '
+                                    '$status $body_bytes_sent "$http_referer " '
+                                    '"$http_user_agent" "$http_x_forwarded_for" ';
+}" >> /etc/nginx/nginx.conf #basic format with the host specified
+
+echo step 2
+echo "server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+
+        access_log /var/log/nginx/access.log myformat1;
+
+        root /var/www/html;
+
+        index index.html index.htm index.nginx-debian.html;
+
+        server_name myrp.com;
+        location / {
+           proxy_pass http://myservers;
+
+           proxy_http_version 1.1;
+
+           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; #forward chain of IP address to the servers
+           proxy_set_header X-Real-IP $remote_addr; #forward real IP address to the servers
+           proxy_set_header Upgrade $http_upgrade; #for Node.JS websocket.io
+           proxy_set_header Connection "upgrade"; #same as above
+        }
+}" > /etc/nginx/conf.d/default.conf #apply the format on a virtual host
+nginx -t
+nginx -s reload
+curl localhost
+less /var/log/nginx/access.log
+
+
 
 [ Troubleshooting ]
 

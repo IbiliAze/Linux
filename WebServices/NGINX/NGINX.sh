@@ -396,6 +396,38 @@ curl localhost
 less /var/log/nginx/access.log
 
 
+{Syslog}
+
+echo "server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+
+        access_log syslog:server=unix:/dev/log myformat1;
+
+        root /var/www/html;
+
+        index index.html index.htm index.nginx-debian.html;
+
+        server_name myrp.com;
+        location / {
+           proxy_pass http://myservers;
+    
+           proxy_http_version 1.1;
+
+           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; #forward chain of IP address to the servers
+           proxy_set_header X-Real-IP $remote_addr; #forward real IP address to the servers
+           proxy_set_header Upgrade $http_upgrade; #for Node.JS websocket.io
+           proxy_set_header Connection "upgrade"; #same as above
+        }
+
+}" > /etc/nginx/conf.d/default.conf
+nginx -t
+nginx -s reload
+curl localhost
+less /var/log/messages #CentOS
+less /var/log/syslog #Ubuntu
+
+
 
 [ Troubleshooting ]
 

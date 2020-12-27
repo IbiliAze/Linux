@@ -158,6 +158,32 @@ nginx -s reload
 curl https://localhost -k #-k=ignore self-signed certificate error 
 
 
+{Improving SSL Config}
+echo "server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+
+        listen 443 ssl;
+        ssl_certificate /etc/nginx/ssl/public.pem;
+        ssl_certificate_key /etc/nginx/ssl/private.key;
+
+        ssl_session_timeout 1d;
+        ssl_session_cache shared:SSL:50m;
+        ssl_session_tickets off; #keep the SSL session on the server, rather than the client
+        ssl_protocols TLSv1.2;
+        ssl_ciphers 'TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256';
+        ssl_prefer_server_ciphers on;
+        add_header Strict-Transport-Security max-age=15768000; #forcing the client to HTTPS
+        ssl_stapling on; #pre-fetch the certificate validation
+
+        root /var/www/html;
+
+        index index.html index.htm index.nginx-debian.html;
+
+        server_name _;
+}" > /etc/nginx/conf.d/default.conf
+
+
 {Redirect to HTTPS}
 echo "server {
         listen 80 default_server;

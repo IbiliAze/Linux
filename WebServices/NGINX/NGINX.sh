@@ -210,6 +210,18 @@ curl localhost -L -k #-L=follow redirects
 
 
 
+[ ModSecurity ] #OWASP
+
+mkdir /etc/nginx/modsecurity
+cd /etc/nginx/modsecurity
+git clone https://github.com/spiderlabs/owasp-modsecurity-crs.git
+cd owasp-modsecurity-crs
+cp crs-setup.conf{.example,}
+cp rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf{.example,}
+cp rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf{.example,}
+
+
+
 [ Redirecting ]
 
 echo "server {

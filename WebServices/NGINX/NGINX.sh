@@ -508,6 +508,28 @@ nginx -s reload
 
 
 
+[ HTTP2 ] #only works with SSL
+
+echo "server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+
+        listen 443 ssl http2;
+        ssl_certificate /etc/nginx/ssl/public.pem;
+        ssl_certificate_key /etc/nginx/ssl/private.key;
+
+        root /var/www/html;
+
+        index index.html index.htm index.nginx-debian.html;
+
+        server_name _;
+}" > /etc/nginx/conf.d/default.conf
+nginx -t
+nginx -s reload
+curl -k https://localhost
+
+
+
 [ Troubleshooting ]
 
 systemctl stop firewalld

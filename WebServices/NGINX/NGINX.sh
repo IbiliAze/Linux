@@ -435,7 +435,6 @@ less /var/log/nginx/access.log
 
 
 {Syslog}
-
 echo "server {
         listen 80 default_server;
         listen [::]:80 default_server;
@@ -464,6 +463,48 @@ nginx -s reload
 curl localhost
 less /var/log/messages #CentOS
 less /var/log/syslog #Ubuntu
+
+
+
+[ Worker Connections ]
+
+echo "worker_processes auto;" >> /etc/nginx/nginx.conf #number of CPU cores allocated
+
+su -s /bin/sh -c "ulimit -Hn" #number of active connections allowed by the server (hard limit)
+su -s /bin/sh -c "ulimit -Sn" #number of active connections allowed by the server (soft limit)
+echo "events {
+        worker_connections 1024;
+}" >> /etc/nginx/nginx.conf
+
+echo "upstream myservers {
+        server 10.253.104.62:80;
+        server 10.253.104.24:80;
+
+        keepalive 32; #connections
+}
+
+server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+
+        root /var/www/html;
+
+        index index.html index.htm index.nginx-debian.html;
+
+        server_name myrp.com;
+        location / {
+            proxy_pass http://myservers;
+            proxy_http_version 1.1; #must be at least 1.1 for keepalives
+
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; #forward chain of IP address to the servers
+            proxy_set_header X-Real-IP $remote_addr; #forward real IP address to the servers
+            proxy_set_header Upgrade $http_upgrade; #for Node.JS websocket.io
+            proxy_set_header Connection "upgrade"; #same as above, must be set for keepalives
+        }
+
+}" > /etc/nginx/conf.d/default.conf #keepalive connections for load balancing / reverse proxy
+nginx -t
+nginx -s reload
 
 
 

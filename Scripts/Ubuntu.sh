@@ -33,3 +33,6 @@ echo -e "\nalias ll='ls -hal'" >> ~/.bashrc
 echo "alias gacp='git add .; git commit -m \"Aliased commit\"; git push'" >> ~/.bashrc
 source ~/.bashrc
 
+echo "SSH Key (For GitHub)"
+ssh-keygen -t ed25519 -C "ibili73@gmail.com"
+

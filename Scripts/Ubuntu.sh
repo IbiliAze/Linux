@@ -30,5 +30,6 @@ docker &&  echo "No need to install Docker" || install_docker
 
 echo "Bash profile"
 echo -e "\nalias ll='ls -hal'" >> ~/.bashrc
+echo "alias gacp='git add .; git commit -m \"Aliased commit\"; git push'" >> ~/.bashrc
 source ~/.bashrc
 

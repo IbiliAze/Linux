@@ -35,9 +35,10 @@ echo "alias gacp='git add .; git commit -m \"Aliased commit\"; git push'" >> ~/.
 source ~/.bashrc
 
 
-echo "Sudo password prompt & SSH"
 echo "SSH Key (For GitHub)"
 ssh-keygen -t ed25519 -C "ibili73@gmail.com"
+
+
 echo """
 *** Run the following commands to run sudo without password prompt ***
 

@@ -28,11 +28,21 @@ install_docker() {
 }
 docker &&  echo "No need to install Docker" || install_docker
 
+
 echo "Bash profile"
 echo -e "\nalias ll='ls -hal'" >> ~/.bashrc
 echo "alias gacp='git add .; git commit -m \"Aliased commit\"; git push'" >> ~/.bashrc
 source ~/.bashrc
 
+
+echo "Sudo password prompt & SSH"
 echo "SSH Key (For GitHub)"
 ssh-keygen -t ed25519 -C "ibili73@gmail.com"
+echo """
+*** Run the following commands to run sudo without password prompt ***
 
+$ sudo visudo
+ibi ALL=(ALL) NOPASSWD: ALL
+
+***
+"""

@@ -16,7 +16,8 @@ sudo apt install -y nginx apache2
 echo "Install misc"
 sudo apt install -y jq yq
 
-echo "Install docker"
+echo "Install containers"
+sudo snap install -y lxd
 install_docker() {
     echo "Installing Docker"
     sudo apt -y install curl

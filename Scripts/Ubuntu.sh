@@ -1,6 +1,7 @@
 #!/bin/bash
 
 echo "Install packages"
+sudo apt update -y
 echo "Install editors"
 sudo apt install -y vim
 
@@ -17,7 +18,7 @@ echo "Install web servers"
 sudo apt install -y nginx apache2
 
 echo "Install misc"
-sudo apt install -y jq yq
+sudo apt install -y jq yq gnupg
 
 echo "Install containers"
 sudo snap install -y lxd

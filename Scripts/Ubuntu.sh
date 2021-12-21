@@ -4,6 +4,9 @@ echo "Install packages"
 echo "Install editors"
 sudo apt install -y vim
 
+echo "Install package managers"
+sudo apt install -y npm pip3
+
 echo "Install network tools"
 sudo apt install -y net-tools
 
